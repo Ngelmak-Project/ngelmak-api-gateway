@@ -1,7 +1,6 @@
 package org.ngelmakproject.config;
 
 import org.ngelmakproject.security.JwtAuthenticationFilter;
-import org.ngelmakproject.security.LoggingGatewayFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.route.RouteLocator;
