@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: "Ngelmak Project"
+  config:
+    import: vault:// # Enable Vault as a Config Data source
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      authentication: approle
+      fail-fast: true # Enable fail-fast to force confirmation. Spring Boot to crash immediately when Vault/OpenBao is not reachable
+      app-role:
+        role-id: ${VAULT_ROLE_ID}
+        secret-id: ${VAULT_SECRET_ID}
+      kv:
+        application-name: "" # skip the application name prefix
+        enabled: true
+        backend: kv
+        default-context: jjwt
+        profile-separator: "/" # kv/jjwt/dev or kv/jjwt/prod
+
+server:
+  port: 4000
+
+logging:
+  level:
+    org.springframework.vault: DEBUG
+    org.springframework.boot.autoconfigure: INFO
+
+debug: true

@@ -31,7 +31,7 @@ public class JwtUtil {
    * properties.
    * Example: jwt.secret=base64-encoded-256-bit-key
    */
-  public JwtUtil(@Value("${jwt.secret}") String secret) {
+  public JwtUtil(@Value("${jwt-secret-key:NOT_LOADED}") String secret) {
     // Decode base64 secret key
     byte[] keyBytes = Base64.getDecoder()
         .decode(secret.getBytes(StandardCharsets.UTF_8));

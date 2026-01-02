@@ -37,7 +37,6 @@
 			<artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
 		</dependency>
 
-
 		<!-- JJWT core libraries -->
 		<dependency>
 			<!-- This is the core API for creating and parsing JSON Web Tokens (JWTs). It defines the
@@ -61,6 +60,20 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.12.6</version>
 			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Spring Vault Libraries -->
+		<dependency>
+			<!-- Spring Vault Core. This is the core library for interacting with HashiCorp Vault. It
+			provides the API for authentication, reading secrets, and managing configurations. -->
+			<groupId>org.springframework.vault</groupId>
+			<artifactId>spring-vault-core</artifactId>
+		</dependency>
+		<dependency>
+			<!-- Spring Cloud Vault Config library enables Spring applications to fetch configuration
+			properties from Vault, allowing secure access to application settings stored in Vault. -->
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-vault-config</artifactId>
 		</dependency>
 
 		<!-- Spring Boot DevTools: adds hot reload, auto restart, and other dev-time features -->
