@@ -1,20 +1,12 @@
 services:
   # --- Gateway Service ---
-  # authenticator:
-  #   build: .
-  #   ports:
-  #     - "4005:4005"
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ngelmakdb
-  #     SPRING_DATASOURCE_USERNAME: postgres
-  #     SPRING_DATASOURCE_PASSWORD: supersecret
-  #     VAULT_ROLE_ID: ${VAULT_ROLE_ID}
-  #     VAULT_SECRET_ID: ${VAULT_SECRET_ID}
-  #   depends_on:
-  #     - postgres
-  #     - vault
-  #   networks:
-  #     - ngelmak-net
+  ngelmak-gateway:
+    build: .
+    container_name: ngelmak-gateway
+    ports:
+      - "4000:4000"
+    networks:
+      - ngelmak-net
 
 networks:
   ngelmak-net:
