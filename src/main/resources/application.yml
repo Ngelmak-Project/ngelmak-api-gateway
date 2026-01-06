@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: "Ngelmak Project - API-Gateway"
+
+  profiles:
+    active: dev # or prod
+
+  config.import: optional:vault:// # Enable Vault as a Config Data source. This requires at least one Vault backend to be enabled and resolvable.
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      authentication: approle
+      fail-fast: false # Enable fail-fast to force confirmation. Spring Boot to crash immediately when Vault/OpenBao is not reachable
+      app-role:
+        role-id: e2c81114-da46-d8d2-379d-9145c0c14f30
+        secret-id: c819d93a-1f84-443d-1152-9ce25619e6fc
+      kv:
+        enabled: false
+        application-name: "" # skip the application name prefix
+        backend: kv
+        default-context: jjwt
+        profile-separator: "/" # kv/jjwt/dev or kv/jjwt/prod
+
+server:
+  port: 4000
+
+spring.devtools.livereload.port: 35730
+
+logging:
+  level:
+    level.web: ERROR
+    org.springframework.vault: DEBUG
+    org.springframework.boot.autoconfigure: INFO
+
+debug: true
+
+jwt-secret-key: NzgwODE3NjExMzk1MDFjYzc2NmRjMmM2Yjc0ZTYyMGUxODM3ZThjMzk0ZTliMTE0MjhlNjliOWRhYTI2MzFkN2RkMGU3NDVhYTA0MzRkNTBkNGEzYmZlMzE1MTg4ZjVmYzA5NmFlNTEyZjkyZjYxMGJlMTM1NmU3ZmU0NDg2Yjk=
+jwt-expiration-in-seconds: 86400 # 24 hours
+jwt-expiration-in-seconds-for-remember-me: 4406400 # 15 days
