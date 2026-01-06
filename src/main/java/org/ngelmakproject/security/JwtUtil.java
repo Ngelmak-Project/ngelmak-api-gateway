@@ -1,7 +1,7 @@
 package org.ngelmakproject.security;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 
 import javax.crypto.SecretKey;
 
@@ -14,46 +14,41 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 
 /**
- * Utility class for only validating JWT tokens using JJWT.
+ * Utility class for generating and validating JWT tokens using JJWT 0.9.1.
  */
 @Component
 public class JwtUtil {
 
   private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
-
+  
   private final SecretKey secretKey;
 
-  /**
-   * Initializes the secret key from a base64-encoded string in application
-   * properties.
-   * Example: jwt.secret=base64-encoded-256-bit-key
-   */
-  public JwtUtil(@Value("${jwt-secret-key:NOT_LOADED}") String secret) {
-    // Decode base64 secret key
-    byte[] keyBytes = Base64.getDecoder()
-        .decode(secret.getBytes(StandardCharsets.UTF_8));
-    this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+  public JwtUtil(@Value("${jwt-secret-key}") String secret) {
+    this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
   }
 
   /**
    * Validates the JWT token and returns the claims.
    * 
    * @param token JWT token to validate
-   * @throws JwtException if the token is invalid or expired
    */
   public Claims validateToken(String token) {
-    log.debug("Validate the JWT token {}", token);
     try {
-      return Jwts.parser().verifyWith(secretKey)
-          .build()
-          .parseSignedClaims(token).getPayload();
-    } catch (SignatureException e) {
-      throw new JwtException("Invalid JWT signature");
+      return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
     } catch (JwtException e) {
-      throw new JwtException("Invalid JWT");
+      log.warn("JWT validation failed: {}", e.getMessage());
+      throw e;
     }
   }
+
+  public Optional<Claims> tryParseClaims(String token) {
+    try {
+      return Optional.of(validateToken(token));
+    } catch (JwtException e) {
+      return Optional.empty();
+    }
+  }
+
 }

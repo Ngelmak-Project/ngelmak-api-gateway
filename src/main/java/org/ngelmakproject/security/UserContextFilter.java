@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -16,32 +15,41 @@ import io.jsonwebtoken.Claims;
 import reactor.core.publisher.Mono;
 
 @Component
-public class JwtAuthenticationFilter implements GatewayFilter {
+public class UserContextFilter implements GatewayFilter {
 
-  private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+	private static final Logger log = LoggerFactory.getLogger(UserContextFilter.class);
 
-  private final JwtUtil jwtUtil;
+	private final JwtUtil jwtUtil;
 
-  public JwtAuthenticationFilter(JwtUtil jwtUtil) {
-    this.jwtUtil = jwtUtil;
-  }
+	public UserContextFilter(JwtUtil jwtUtil) {
+		this.jwtUtil = jwtUtil;
+	}
 
-  @Override
-  public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+	@Override
+	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     ServerHttpRequest request = exchange.getRequest();
-
-    if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-      return onError(exchange, "Missing Authorization Header", HttpStatus.UNAUTHORIZED);
-    }
 
     String token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION).replace("Bearer ", "");
 
-    Optional<Claims> optional = jwtUtil.tryParseClaims(token);
+		Optional<Claims> optional = jwtUtil.tryParseClaims(token);
 
-    if (optional.isPresent()) {
-      String userId = optional.get().getSubject();
-      String username = optional.get().get("username", String.class);
-      String authorities = optional.get().get("authorities", String.class);
+		if (optional.isPresent()) {
+			String userId = optional.get().getSubject();
+			String username = optional.get().get("username", String.class);
+			String authorities = optional.get().get("authorities", String.class);
+
+			log.info("\n" +
+					"=========< User Context Filter >=========\n" +
+					"X-User-Id          : {}\n" +
+					"X-User-Username    : {}\n" +
+					"X-User-Authorities : {}\n" +
+					"=========================================", userId, username, authorities);
+
+			exchange.getRequest().mutate()
+					.header("X-User-Id", optional.get().getSubject())
+					.header("X-User-Username", optional.get().get("username", String.class))
+					.header("X-User-Authorities", optional.get().get("authorities", String.class))
+					.build();
 
       log.info("\n" +
           "===========< Jwt Auth Filte >===========\n" +
@@ -57,14 +65,8 @@ public class JwtAuthenticationFilter implements GatewayFilter {
           .build();
 
       return chain.filter(exchange.mutate().request(mutatedRequest).build());
+		}
 
-    } else {
-      return onError(exchange, "Invalid JWT", HttpStatus.UNAUTHORIZED);
-    }
-  }
-
-  private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus status) {
-    exchange.getResponse().setStatusCode(status);
-    return exchange.getResponse().setComplete();
-  }
+		return chain.filter(exchange);
+	}
 }
