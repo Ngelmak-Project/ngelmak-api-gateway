@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -27,9 +28,13 @@ public class UserContextFilter implements GatewayFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-    ServerHttpRequest request = exchange.getRequest();
+		ServerHttpRequest request = exchange.getRequest();
 
-    String token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION).replace("Bearer ", "");
+		if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+			return chain.filter(exchange);
+		}
+
+		String token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION).replace("Bearer ", "");
 
 		Optional<Claims> optional = jwtUtil.tryParseClaims(token);
 
@@ -51,20 +56,20 @@ public class UserContextFilter implements GatewayFilter {
 					.header("X-User-Authorities", optional.get().get("authorities", String.class))
 					.build();
 
-      log.info("\n" +
-          "===========< Jwt Auth Filte >===========\n" +
-          "X-User-Id          : {}\n" +
-          "X-User-Username    : {}\n" +
-          "X-User-Authorities : {}\n" +
-          "========================================", userId, username, authorities);
-      // Forward user info to downstream services
-      ServerHttpRequest mutatedRequest = request.mutate()
-          .header("X-User-Id", userId)
-          .header("X-User-Username", username)
-          .header("X-User-Authorities", authorities)
-          .build();
+			log.info("\n" +
+					"===========< Jwt Auth Filte >===========\n" +
+					"X-User-Id          : {}\n" +
+					"X-User-Username    : {}\n" +
+					"X-User-Authorities : {}\n" +
+					"========================================", userId, username, authorities);
+			// Forward user info to downstream services
+			ServerHttpRequest mutatedRequest = request.mutate()
+					.header("X-User-Id", userId)
+					.header("X-User-Username", username)
+					.header("X-User-Authorities", authorities)
+					.build();
 
-      return chain.filter(exchange.mutate().request(mutatedRequest).build());
+			return chain.filter(exchange.mutate().request(mutatedRequest).build());
 		}
 
 		return chain.filter(exchange);
