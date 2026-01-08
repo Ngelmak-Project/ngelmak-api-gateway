@@ -31,7 +31,7 @@ public class UserContextFilter implements GatewayFilter {
 		ServerHttpRequest request = exchange.getRequest();
 
 		if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-			return chain.filter(exchange);
+			return chain.filter(exchange); // skip authentication
 		}
 
 		String token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION).replace("Bearer ", "");

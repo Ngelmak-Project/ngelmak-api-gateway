@@ -4,6 +4,24 @@ spring:
   config:
     import: vault:// # Enable Vault as a Config Data source
   cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "https://ngelmak.org" # frontend app
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
     vault:
       uri: http://localhost:8200
       authentication: approle

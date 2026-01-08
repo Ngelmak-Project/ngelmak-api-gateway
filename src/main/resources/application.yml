@@ -7,6 +7,19 @@ spring:
 
   config.import: optional:vault:// # Enable Vault as a Config Data source. This requires at least one Vault backend to be enabled and resolvable.
   cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns:
+              - "*"        # allow any origin during development
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
     vault:
       uri: http://localhost:8200
       authentication: approle
