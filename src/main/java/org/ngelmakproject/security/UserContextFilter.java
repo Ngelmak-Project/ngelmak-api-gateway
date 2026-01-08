@@ -50,18 +50,6 @@ public class UserContextFilter implements GatewayFilter {
 					"X-User-Authorities : {}\n" +
 					"=========================================", userId, username, authorities);
 
-			exchange.getRequest().mutate()
-					.header("X-User-Id", optional.get().getSubject())
-					.header("X-User-Username", optional.get().get("username", String.class))
-					.header("X-User-Authorities", optional.get().get("authorities", String.class))
-					.build();
-
-			log.info("\n" +
-					"===========< Jwt Auth Filte >===========\n" +
-					"X-User-Id          : {}\n" +
-					"X-User-Username    : {}\n" +
-					"X-User-Authorities : {}\n" +
-					"========================================", userId, username, authorities);
 			// Forward user info to downstream services
 			ServerHttpRequest mutatedRequest = request.mutate()
 					.header("X-User-Id", userId)
