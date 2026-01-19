@@ -10,33 +10,40 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CoreRoutesConfig {
 
-  private final JwtAuthenticationFilter jwtFilter;
-  private final UserContextFilter userContextFilter;
+    private final JwtAuthenticationFilter jwtFilter;
+    private final UserContextFilter userContextFilter;
 
-  public CoreRoutesConfig(JwtAuthenticationFilter jwtFilter, UserContextFilter userContextFilter) {
-    this.jwtFilter = jwtFilter;
-    this.userContextFilter = userContextFilter;
-  }
+    public CoreRoutesConfig(JwtAuthenticationFilter jwtFilter, UserContextFilter userContextFilter) {
+        this.jwtFilter = jwtFilter;
+        this.userContextFilter = userContextFilter;
+    }
 
-  @Bean
-  public RouteLocator coreRoutes(RouteLocatorBuilder builder) {
-    return builder.routes()
-        // 🔓 Public Core Routes
-        .route("core-public", r -> r
-            .path("/api/core/r/**")
-            .filters(f -> f
-                .filter(userContextFilter)
-                .rewritePath("/api/core/r/(?<segment>.*)", "/api/${segment}"))
-            .uri("http://ngelmak-core:5742"))
+    @Bean
+    public RouteLocator coreRoutes(RouteLocatorBuilder builder) {
+        return builder.routes()
+                // 🌍 Public File Access (no auth)
+                .route("core-public-resources", r -> r
+                        .path("/public/**")
+                        .filters(f -> f
+                                .rewritePath("/public/(?<file>.*)", "/public/${file}"))
+                        .uri("http://ngelmak-core:5742"))
 
-        // 🔐 Protected Core Routes
-        .route("core-protected", r -> r
-            .path("/api/core/**")
-            .filters(f -> f
-                .filter(jwtFilter)
-                .rewritePath("/api/core/(?<segment>.*)", "/api/${segment}"))
-            .uri("http://ngelmak-core:5742"))
+                // 🔓 Public Core Routes
+                .route("core-public", r -> r
+                        .path("/api/core/r/**")
+                        .filters(f -> f
+                                .filter(userContextFilter)
+                                .rewritePath("/api/core/r/(?<segment>.*)", "/api/${segment}"))
+                        .uri("http://ngelmak-core:5742"))
 
-        .build();
-  }
+                // 🔐 Protected Core Routes
+                .route("core-protected", r -> r
+                        .path("/api/core/**")
+                        .filters(f -> f
+                                .filter(jwtFilter)
+                                .rewritePath("/api/core/(?<segment>.*)", "/api/${segment}"))
+                        .uri("http://ngelmak-core:5742"))
+
+                .build();
+    }
 }
