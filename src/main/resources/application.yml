@@ -5,7 +5,8 @@ spring:
   profiles:
     active: dev # or prod
 
-  config.import: optional:vault:// # Enable Vault as a Config Data source. This requires at least one Vault backend to be enabled and resolvable.
+  config:
+    import: optional:vault:// # Enable Vault as a Config Data source. This requires at least one Vault backend to be enabled and resolvable.
   cloud:
     gateway:
       globalcors:
@@ -42,7 +43,8 @@ spring.devtools.livereload.port: 35730
 
 logging:
   level:
-    level.web: ERROR
+    level:
+      web: ERROR
     org.springframework.vault: DEBUG
     org.springframework.boot.autoconfigure: INFO
 
