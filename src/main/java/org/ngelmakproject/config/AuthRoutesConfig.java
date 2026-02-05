@@ -20,7 +20,7 @@ public class AuthRoutesConfig {
     return builder.routes()
         // 🔓 Public Auth Routes
         .route("auth-public", r -> r
-            .path("/api/auth/authenticate", "/api/auth/register")
+            .path("/api/auth/public/**")
             .filters(f -> f.rewritePath("/api/auth/(?<segment>.*)", "/api/${segment}"))
             .uri("http://ngelmak-auth:4042"))
 
