@@ -40,19 +40,19 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 
     if (optional.isPresent()) {
       String userId = optional.get().getSubject();
-      String username = optional.get().get("username", String.class);
+      String login = optional.get().get("login", String.class);
       String authorities = optional.get().get("authorities", String.class);
 
       log.info("\n" +
           "===========< Jwt Auth Filte >===========\n" +
           "X-User-Id          : {}\n" +
-          "X-User-Username    : {}\n" +
+          "X-User-Login       : {}\n" +
           "X-User-Authorities : {}\n" +
-          "========================================", userId, username, authorities);
+          "========================================", userId, login, authorities);
       // Forward user info to downstream services
       ServerHttpRequest mutatedRequest = request.mutate()
           .header("X-User-Id", userId)
-          .header("X-User-Username", username)
+          .header("X-User-Login", login)
           .header("X-User-Authorities", authorities)
           .build();
 
