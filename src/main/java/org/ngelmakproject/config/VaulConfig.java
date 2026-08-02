@@ -2,7 +2,6 @@ package org.ngelmakproject.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -10,21 +9,20 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-public class VaultDebug {
+public class VaulConfig {
 
-  private static final Logger log = LoggerFactory.getLogger(VaultDebug.class);
+  private static final Logger log = LoggerFactory.getLogger(VaulConfig.class);
 
-  @Autowired
-  private Environment env;
+    private final Environment env;
+    private final String jwtSecretKey;
 
-  @Value("${jwt-secret-key:NOT_LOADED}")
-  private String jwtSecretKey;
-
-  @Value("${spring.datasource.username:NOT_LOADED}")
-  private String dbUser;
-
-  @Value("${spring.datasource.password:NOT_LOADED}")
-  private String dbPass;
+    public VaulConfig(
+            Environment env,
+            @Value("${jwt-secret-key:NOT_LOADED}") String jwtSecretKey
+    ) {
+        this.env = env;
+        this.jwtSecretKey = jwtSecretKey;
+    }
 
   @EventListener(ApplicationReadyEvent.class)
   public void ready() {
@@ -56,8 +54,6 @@ public class VaultDebug {
         " KV Resolved Path      :  {}\n" +
         "---------------------------------------------------------------\n" +
         " DB Backend Enabled    :  {}\n" +
-        " DB Username Loaded    :  {}\n" +
-        " DB Password Loaded    :  {}\n" +
         "---------------------------------------------------------------\n" +
         " Transit Enabled       :  {}\n" +
         "---------------------------------------------------------------\n" +
@@ -71,8 +67,6 @@ public class VaultDebug {
         kvAppName,
         kvPath,
         dbEnabled,
-        mask(dbUser),
-        mask(dbPass),
         transitEnabled,
         mask(jwtSecretKey));
   }

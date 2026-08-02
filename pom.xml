@@ -10,7 +10,7 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.ngelmakproject</groupId>
-	<artifactId>ngelmak-api-gateway</artifactId>
+	<artifactId>ngelmak-gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Ngelmak API Gateway</name>
 	<description>Main entrypoint of Ngelmak microservices</description>

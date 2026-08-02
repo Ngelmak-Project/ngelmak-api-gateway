@@ -26,9 +26,9 @@ public class LoggingGatewayFilter implements GatewayFilter {
 
             URI targetUri = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
 
-            log.info("Incoming request: {}", originalPath);
-            log.info("Matched route: {}", routeId);
-            log.info("➡️ Forwarded to: {}", targetUri);
+            log.debug("Incoming request: {}", originalPath);
+            log.debug("Matched route: {}", routeId);
+            log.debug("➡️ Forwarded to: {}", targetUri);
         }));
   }
 }

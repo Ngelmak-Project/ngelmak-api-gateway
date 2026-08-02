@@ -1,6 +1,6 @@
 spring:
   application:
-    name: "Ngelmak Project"
+    name: "Ngelmak Project - Gateway"
   config:
     import: vault:// # Enable Vault as a Config Data source
   cloud:
@@ -21,27 +21,23 @@ spring:
             allowCredentials: true
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
-
     vault:
-      uri: http://localhost:8200
+      uri: http://vault:8200
       authentication: approle
       fail-fast: true # Enable fail-fast to force confirmation. Spring Boot to crash immediately when Vault/OpenBao is not reachable
       app-role:
         role-id: ${VAULT_ROLE_ID}
         secret-id: ${VAULT_SECRET_ID}
+      database:
+        enabled: false
       kv:
-        application-name: "" # skip the application name prefix
         enabled: true
-        backend: kv
-        default-context: jjwt
-        profile-separator: "/" # kv/jjwt/dev or kv/jjwt/prod
-
+        backend: secret
+        application-name: jjwt
+        default-context: ""  # or omit this entirely
 server:
-  port: 4000
-
+  port: 37173
+debug: false
 logging:
   level:
-    org.springframework.vault: DEBUG
-    org.springframework.boot.autoconfigure: INFO
-
-debug: true
+    root: INFO

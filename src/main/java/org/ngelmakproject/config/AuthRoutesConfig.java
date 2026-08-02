@@ -1,6 +1,5 @@
 package org.ngelmakproject.config;
 
-import org.ngelmakproject.security.JwtAuthenticationFilter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -9,29 +8,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AuthRoutesConfig {
 
-  private final JwtAuthenticationFilter jwtFilter;
-
-  public AuthRoutesConfig(JwtAuthenticationFilter jwtFilter) {
-    this.jwtFilter = jwtFilter;
-  }
-
   @Bean
   public RouteLocator authRoutes(RouteLocatorBuilder builder) {
+    // Map the /auth/** path to the auth service, rewriting the path to /api/v1/** for internal routing.
     return builder.routes()
-        // 🔓 Public Auth Routes
-        .route("auth-public", r -> r
-            .path("/api/auth/public/**")
-            .filters(f -> f.rewritePath("/api/auth/(?<segment>.*)", "/api/${segment}"))
-            .uri("http://ngelmak-auth:4042"))
-
-        // 🔐 Protected Auth Routes
-        .route("auth-protected", r -> r
-            .path("/api/auth/**")
-            .filters(f -> f
-                .filter(jwtFilter)
-                .rewritePath("/api/auth/(?<segment>.*)", "/api/${segment}"))
-            .uri("http://ngelmak-auth:4042"))
-
+        .route("auth", r -> r
+            .path("/auth/**")
+            .filters(f -> f.rewritePath("/auth/(?<segment>.*)", "/api/v1/${segment}"))
+            .uri("http://auth:37273"))
         .build();
   }
 }

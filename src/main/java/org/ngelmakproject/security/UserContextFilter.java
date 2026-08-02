@@ -42,7 +42,7 @@ public class UserContextFilter implements GatewayFilter {
 			String login = optional.get().get("login", String.class);
 			String authorities = optional.get().get("authorities", String.class);
 
-			log.info("\n" +
+			log.debug("\n" +
 					"=========< User Context Filter >=========\n" +
 					"X-User-Id          : {}\n" +
 					"X-User-Login       : {}\n" +

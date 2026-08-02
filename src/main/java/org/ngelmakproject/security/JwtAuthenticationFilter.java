@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter implements GatewayFilter {
       String login = optional.get().get("login", String.class);
       String authorities = optional.get().get("authorities", String.class);
 
-      log.info("\n" +
+      log.debug("\n" +
           "===========< Jwt Auth Filte >===========\n" +
           "X-User-Id          : {}\n" +
           "X-User-Login       : {}\n" +

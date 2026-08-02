@@ -5,15 +5,21 @@ import java.util.Optional;
 
 import javax.crypto.SecretKey;
 
+import org.ngelmakproject.security.exceptions.TokenExpiredException;
+import org.ngelmakproject.security.exceptions.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 
 /**
  * Utility class for generating and validating JWT tokens using JJWT 0.9.1.
@@ -22,7 +28,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 
   private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
-  
+
   private final SecretKey secretKey;
 
   public JwtUtil(@Value("${jwt-secret-key}") String secret) {
@@ -37,9 +43,18 @@ public class JwtUtil {
   public Claims validateToken(String token) {
     try {
       return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+    } catch (ExpiredJwtException e) {
+      throw new TokenExpiredException("Token has expired");
+    } catch (SignatureException e) {
+      throw new UnauthorizedException("Invalid signature");
+    } catch (MalformedJwtException e) {
+      throw new UnauthorizedException("Malformed token");
+    } catch (UnsupportedJwtException e) {
+      throw new UnauthorizedException("Unsupported token");
+    } catch (IllegalArgumentException e) {
+      throw new UnauthorizedException("Token is empty");
     } catch (JwtException e) {
-      log.warn("JWT validation failed: {}", e.getMessage());
-      throw e;
+      throw new UnauthorizedException("JWT processing error");
     }
   }
 
